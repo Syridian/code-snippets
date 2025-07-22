@@ -1,0 +1,74 @@
+// Xibo Embed Code
+// This code is used to embed a timed text message into a Xibo page. This is not code that you would run directly in a browser, but rather code that is used within the Xibo content management system to display scheduled messages based on date and time.
+
+// HTML to Embed
+<center>Scheduled person:
+<h1><div id="message">No-one scheduled.</div></h1></center>
+
+// Custom Style Sheets
+<style type="text/css">
+    body {
+      font-family: Arial, sans-serif;
+      padding: 0px;
+      color: red; /* Default text color */
+      font-size: 48px;
+      align: center;
+    }
+    h1 {
+      font-size: 68px;
+    }
+</style>
+
+// HEAD content to Embed (including script tags)
+
+<script type="text/javascript">
+    function EmbedInit()
+    {
+      // Init will be called when this page is loaded in the client.
+
+
+    // Define messages with date and time ranges
+    const schedule = [
+      {
+        date: "2025-07-22", // YYYY-MM-DD
+        start: "08:00",
+        end: "12:30",
+        text: "Syridian"
+      },
+      {
+        date: "2025-07-22",
+        start: "12:30",
+        end: "17:00",
+        text: "Syridian"
+      },
+      {
+        date: "2025-07-25",
+        start: "17:00",
+        end: "18:00",
+        text: "Yay, We're done!"
+      }
+    ];
+
+    function checkSchedule() {
+      const now = new Date();
+      const currentDate = now.toISOString().split("T")[0]; // YYYY-MM-DD
+      const currentTime = now.toTimeString().slice(0, 5); // HH:MM
+
+      const messageElement = document.getElementById("message");
+
+      const activeMessage = schedule.find(entry => {
+        return entry.date === currentDate &&
+               currentTime >= entry.start &&
+               currentTime <= entry.end;
+      });
+
+      messageElement.textContent = activeMessage ? activeMessage.text : "No active message.";
+    }
+
+    // Check every minute
+    setInterval(checkSchedule, 60000);
+    checkSchedule(); // Initial check
+
+        return;
+    }
+</script>
