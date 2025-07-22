@@ -1,0 +1,121 @@
+// Xibo Web-check Code
+// This code is used to embed a basic website check into a Xibo page. This is not code that you would run directly in a browser, but rather code that is used within the Xibo content management system to display scheduled messages based on date and time.
+
+// HTML to Embed
+<h1>Online Status</h1>
+<h6>Not live, only checks on each screen load.</h6>
+  <table>
+    <thead>
+      <tr>
+        <th>Website/Server</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="statusTable">
+      <!-- Rows will be inserted here -->
+    </tbody>
+  </table>
+
+
+// Custom Style Sheets
+<style type="text/css">
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      color: red; /* Default text color */
+      font-size: 24px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      max-width: 600px;
+    }
+    th, td {
+      padding: 8px 12px;
+      border: 0px solid #f00;
+      text-align: left;
+      font-size: 25px;
+    }
+    .online {
+      color: green;
+    }
+    .offline {
+      color: red;
+      font-weight: bold;
+    }
+</style>
+
+
+// HEAD content to Embed (including script tags)
+
+<script type="text/javascript">
+    function EmbedInit()
+    {
+    const websites = [
+      { name: "Microsoft O365", url: "https://res.cdn.office.net/officehub/images/content/images/favicon_copilot-4370172aa6.ico" },
+      { name: "Google", url: "https://www.google.com/favicon.ico" },
+      { name: "Wikipedia", url: "https://www.wikipedia.org/static/favicon/wikipedia.ico" },
+    ];
+
+    function pingImage(url, callback) {
+      const img = new Image();
+      const start = performance.now();
+      let completed = false;
+
+      img.onload = () => {
+        if (!completed) {
+          completed = true;
+          callback(true, performance.now() - start);
+        }
+      };
+      img.onerror = () => {
+        if (!completed) {
+          completed = true;
+          callback(false, null);
+        }
+      };
+
+      // Cache buster
+      img.src = url + "?cache_bust=" + Date.now();
+
+      // Optional timeout in case image load hangs (5s)
+      setTimeout(() => {
+        if (!completed) {
+          completed = true;
+          callback(false, null);
+        }
+      }, 5000);
+    }
+
+    function updateTable() {
+      const tableBody = document.getElementById("statusTable");
+      tableBody.innerHTML = "";
+      websites.forEach(site => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${site.name}</td>
+          <td id="status-${site.name}">Checking...</td>
+        `;
+        tableBody.appendChild(row);
+      });
+    }
+
+    function checkAllSites() {
+      updateTable();
+      websites.forEach(site => {
+        const statusCell = document.getElementById(`status-${site.name}`);
+        pingImage(site.url, (online, time) => {
+          if (online) {
+            statusCell.innerHTML = `<span class="online">Online</span>`;
+          } else {
+            statusCell.innerHTML = `<span class="offline">Offline</span>`;
+          }
+        });
+      });
+    }
+
+    // Auto-check on load
+    window.onload = checkAllSites;
+        return;
+    }
+</script>
